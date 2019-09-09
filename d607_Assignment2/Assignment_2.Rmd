@@ -1,0 +1,92 @@
+---
+title: "d607_Assignment2"
+author: "Paul Perez"
+date: "9/8/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Creating a survey to garner movie ratings
+I created an 8 question survey through Google Forms so I could easily distribute it within work as well as easilly access the results in Google Sheets.
+The survey was structured to have the participant enter their first and last name, along with their age group. After this, they were asked to select their rating on a scale of 1 being the "dislike" and 5 being "love" in regards to how they felt toward the movie. If they have not seen it, they were asked to skip the question. This allows for NULL or NA values to appear which we can handle within the database.
+
+## Creating a PostgreSQL Database
+Here I was able to install Postgres onto my local machine and operate through pgAdmin 4. Using the public scheme within the local database, I was able to create a database called "movie_ratings". Then I created the table's ratings and ratings_anon. (The "ratings" table included first and last names where the "ratings_anon" excluded first names and replaced those values with auto-incrementing unique ID's because the SQL included a user_id column as a SERIAL data type. Please find the scripts below.)
+
+```{sql eval=FALSE}
+CREATE TABLE public.ratings
+(
+    date date NOT NULL,
+    first_name text COLLATE pg_catalog."default",
+    last_name text COLLATE pg_catalog."default",
+    age_group text COLLATE pg_catalog."default",
+    avengers_endgame integer,
+    get_out integer,
+    a_star_is_born integer,
+    frozen integer,
+    inglorious_bastards integer
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.ratings
+    OWNER to postgres;
+
+
+
+CREATE TABLE public.ratings_anon
+(
+    user_id integer NOT NULL DEFAULT nextval('ratings_anon_user_id_seq'::regclass),
+    date date NOT NULL,
+    age_group text COLLATE pg_catalog."default",
+    avengers_endgame integer,
+    get_out integer,
+    a_star_is_born integer,
+    frozen integer,
+    inglorious_bastards integer
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.ratings_anon
+    OWNER to postgres;
+```
+
+## Loading the Data
+Using the import tool within pgAdmin, I was able to select the columns to include/exclude in my imports as well as whether the file contianed a header or not.
+
+## Accessing the Database through R
+Needed to install the package "RPostgreSQL" and then connect to the local database.
+
+```{r}
+library("RPostgreSQL")
+require("RPostgreSQL")
+```
+
+To prevent credentials from being shown, please find the code below with dummy variables to connect.
+```{r eval=FALSE}
+con<-dbConnect(dbDriver("driver"), dbname="database", host="host", port=PORT, user="user",password="password")
+```
+
+## Check tables in Database
+
+```{r}
+dbListTables(con)
+```
+
+## Create variable for "Rating_Anon" Table and View Data
+```{r}
+db_ratings = dbGetQuery(con, "select * from ratings_anon")
+summary(db_ratings)
+db_ratings
+```
+
+## Next Steps
+Reconstructing the survey to exclude personal information could be a potential next step as well as deciding on an ingestion cadence along with an incremental loading feature to ensure that duplicative values don't appear. Additionally, the handling of "NA" values will be valueable in keeping consistent data types as well as analyzing survey results to truly represent the movie ratings.
