@@ -1,0 +1,104 @@
+---
+title: "d607_Assignment3"
+author: "Paul Perez"
+date: "9/16/2019"
+output: html_document
+---
+# Question 3
+## Task at Hand
+Take the raw data below and clean/pull specific data from it.
+raw.data <-“555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
+
+## Install Stringr Package
+```{r}
+library(stringr)
+```
+Stringr is a package to help aid regular expressions in the R language.
+
+## Pull names from vector
+The textbook supplies the string extraction below.
+```{r}
+raw.data <-"555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
+
+raw_names <- unlist(str_extract_all(raw.data, "[[:alpha:]., ]{2,}"))
+raw_names
+```
+
+## Logic to determine if name has a title
+```{r}
+title <- str_detect(raw_names, "[[:alpha:]]{2,}\\.")
+title
+```
+
+## Logic to determine if there is a second name
+```{r}
+second_name <- str_detect(raw_names, "[A-Z]\\.{1}")
+second_name
+```
+
+# Question 4
+## Describe the types of strings that conform to each regular expression
+Identify the types of regular expressions and provide examples
+
+#### a. [0-9]+\\$
+This regular expression matches string patterns with numbers ranging between 0-9 one or more times followed by a dollar sign
+
+```{r}
+number_vector <- c("Phone Number is:", "1888$", "888$", "$8888")
+number_extract <- unlist(str_extract_all(number_vector, "[0-9]+\\$"))
+number_extract
+```
+
+#### b. \\b[a-z]{1,4}\\b
+This regular expression matches words having characters that are lower case appearing 0-4 times
+
+```{r}
+characters <- "Bel1eve it or n0t, George isn't 4t home, pl3ase leave a me$$age at the beep"
+decipher <- unlist(str_extract_all(characters, "\\b[a-z]{1,4}\\b"))
+decipher
+```
+
+#### c. .*?\\.txt$
+This regular expression matches strings that end with .txt
+
+```{r}
+directory_list <- c("assignment_3.txt", "assignment_3.Rmd", "assignment_3.pdf", "assignment_3.html", "assignment_3.Rproj")
+txt_files <- unlist(str_extract_all(directory_list, ".*?\\.txt$"))
+txt_files
+```
+
+#### d. \\d{2}/\\d{2}/\\d{4}
+This regular expression matches strings with 2 numbers, followed by "/" and then 2 more numbers followed by "/" and lastly 4 numbers
+
+```{r}
+time_stamps <- c("09/14/2019 00:32:34", "12/31/1993 12:25:25", "07/21/1987 18:56:23")
+dates <- unlist(str_extract_all(time_stamps, "\\d{2}/\\d{2}/\\d{4}"))
+dates
+```
+
+#### e. <(.+?)>.+?</\\1>
+This regular expression matches the start/end tags with the text inbetween 
+
+```{r}
+html <- c("<h1> This is the first header </h1>", "<h2> This is the second header </h2>")
+tag <- unlist(str_extract_all(html, "<(.+?)>.+?</\\1>"))
+tag
+```
+
+# Question 9
+## Crack the code below
+clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr
+
+```{r}
+code <- "clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr"
+letters <- unlist(str_extract_all(code, "[:alpha:]"))
+letters
+numbers <- unlist(str_extract_all(code, "[:digit:]"))
+numbers
+upper_case <- unlist(str_extract_all(code, "[:upper:]"))
+upper_case
+```
+
+Turns out that upper case characters spelled out "Congratulations You Are A Super Nerd"
+
+[Stringr Cheat Sheet](https://evoldyn.gitlab.io/evomics-2018/ref-sheets/R_strings.pdf)
