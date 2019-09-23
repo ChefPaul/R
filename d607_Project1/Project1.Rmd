@@ -1,0 +1,75 @@
+---
+title: "Project1"
+author: "Paul Perez"
+date: "9/22/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Project 1: Chess Tournament Data
+In this project, we’re given a text file with chess tournament results where the information has some structure. Our
+job is to create an R Markdown file that generates a .CSV file (that could for example be imported into a SQL database). That file should contain the Player's Name, Player's State, Total Number of Points, Player's Pre-Rating, and Average Pre Chess Ratings of Opponents.
+
+# Data
+We've receievd a .txt file that is tab delimited ("\\t") and need to clean it up. The information provided on the sheet is the players rank, name location, rating (both before & after the tournament), the number of points they've scored, and the results of all their matches. 
+
+```{r}
+data <- readLines("tournamentinfo.txt")
+head(data)
+```
+
+# Cleaning the Data
+We can see that our data actually starts on the 5th row, so we'll skip the first 4 rows. To do this, we can create a data frame out of the data from the file, and then slice out those first 4 rows. Note: I'm using the length of the original data import to guage the number of rows available. I can also check using tail() but this will dynamically adjust should there be another tournament file available.
+```{r}
+df <- data.frame(data)
+df <- df[5:length(data),]
+head(df)
+```
+
+After several attemps of ingesting the data and converting the tabs to commas, the only successful way to access the data was through the sequence function. Since the rows are not consistent with data, we'll have to create two variables for different sets of sequences. Looking at the head of the dataframe above, we see that we can extract the players rating, name, score, and results from row 1, and the players location, and ranks pre/post tournament. 
+
+```{r}
+players <- df[seq(1, length(df), 3)]
+ratings <- df[seq(2, length(df), 3)]
+```
+
+Next we'll have to extract data from each of these sequences to prep for our final data frame.
+
+```{r}
+library(stringr)
+id <- as.integer(str_extract(players, "[[:digit:]]+"))
+names <- str_trim(str_extract(players, "([[:alpha:]]+\\s){2,3}"))
+location <- str_extract(ratings, "[[:alpha:]]+")
+scores <- str_extract(players, "\\d+\\.\\d+")
+rating <- as.integer(str_extract(str_extract(ratings, "[^\\d]\\d{3,4}[^\\d]"), "\\d+"))
+opponents <- str_extract_all(str_extract_all(players,"[[:digit:]]+\\|"), "[[:digit:]]+")
+```
+
+# Get Average of Opponents Ratings
+We're going to have to identify the opponents of each player, and then get a mean rating for each to help determine the strength of their opponents.
+```{r}
+opponent_ratings <- length(players)
+for (i in 1:length(players)) { 
+  opponent_ratings[i] <- round(mean(rating[as.numeric(unlist(opponents[as.integer(id)[i]]))]), digits = 0) 
+}
+```
+
+# Create Data Frame
+Utilizing the knitr library, we can create a table to list the results. Additionally, we'll add titles to each of the columns.
+
+```{r}
+library(knitr)
+ndf <- data.frame(names, location, scores, rating, opponent_ratings)
+colnames(ndf) <- c("Player's Name", "Player's State", "Total Number of Points", "Player's Pre-Rating", "Average Pre Chess Rating of Opponents")
+kable(ndf, caption = "Chess Tournament Results", format = "html")
+```
+
+# Writing Data Frame to .csv
+```{r}
+write.csv(ndf, file = "tournament_results.csv")
+```
