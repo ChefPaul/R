@@ -1,0 +1,43 @@
+<books>
+	<book>
+		<title>Outliers: The Story of Success</title>
+		<author1>Malcom Gladwell</author1>
+		<genre>Non-Fiction</genre>
+		<pages>336</pages>
+		<year>2011</year>
+		<publisher>Back Bay Books</publisher>
+		<price>7.79</price>
+		<url>https://www.amazon.com/Outliers-Story-Success-Malcolm-Gladwell/dp/0316017930/ref=sr_1_1?crid=1DTSJR5PJ6F62&amp;keywords=outliers+malcolm+gladwell&amp;qid=1570759514&amp;s=books&amp;sprefix=Outliers%2Cstripbooks%2C153&amp;sr=1-1</url>
+	</book>
+	<book>
+		<title>Freakonomics: A Rogue Economist Explores the Hidden Side of Everything</title>
+		<author1>Steven D. Levitt</author1>
+		<author2>Stephen J. Dubner</author2>
+		<genre>Non-Fiction</genre>
+		<pages>315</pages>
+		<year>2009</year>
+		<publisher>William Morrow Paperbacks</publisher>
+		<price>7.28</price>
+		<url>https://www.amazon.com/Freakonomics-Economist-Explores-Hidden-Everything/dp/0060731338/ref=sr_1_1?keywords=freakonomics&amp;qid=1570758608&amp;s=books&amp;sr=1-1</url>
+	</book>
+	<book>
+		<title>Naked Statistics: Stripping the Dread from the Data</title>
+		<author1>Charles Wheelan</author1>
+		<genre>Non-Fiction</genre>
+		<pages>304</pages>
+		<year>2014</year>
+		<publisher>W. W. Norton &amp; Company</publisher>
+		<price>10.59</price>
+		<url>https://www.amazon.com/Naked-Statistics-Stripping-Dread-Data/dp/039334777X/ref=sr_1_2?keywords=naked+statistics&amp;qid=1570759600&amp;s=books&amp;sr=1-2</url>
+	</book>
+	<book>
+		<title>Thinking, Fast and Slow</title>
+		<author1>Daniel Kahneman</author1>
+		<genre>Non-Fiction</genre>
+		<pages>499</pages>
+		<year>2013</year>
+		<publisher>Farrar, Staus and Giroux</publisher>
+		<price>8.99</price>
+		<url>https://www.amazon.com/Thinking-Fast-Slow-Daniel-Kahneman/dp/0374533555/ref=pd_sbs_14_6/144-6968162-6348544?_encoding=UTF8&amp;pd_rd_i=0374533555&amp;pd_rd_r=766d59e7-c415-4c94-b05d-d041ddd4b3b1&amp;pd_rd_w=vVNJE&amp;pd_rd_wg=nQ3MS&amp;pf_rd_p=52b7592c-2dc9-4ac6-84d4-4bda6360045e&amp;pf_rd_r=GTN175DNBZ21VHCWBQ5V&amp;psc=1&amp;refRID=GTN175DNBZ21VHCWBQ5V</url>
+	</book>
+</books>
