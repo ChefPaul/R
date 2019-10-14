@@ -1,0 +1,117 @@
+---
+title: "d607_Assignment5"
+author: "Paul Perez"
+date: "10/12/2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Assignment 6
+
+## Objective
+We must work with different file formats, specifically .xml, .html, .json, and load them into R. To start, we must select a few books of our choice, and collect some attributes about the books such as titles, authors, number of pages, genre etc. Then, create an file called "books" for each of the file formats listed about and then load them into R DataFrames.
+
+I've chosen to work with Non-Fiction books.
+
+## XML
+We'll open up our "books.xml" file and prep the results for a data frame.
+
+```{r}
+library(XML)
+library(RCurl)
+xml_data <- xmlToDataFrame(getURL("https://raw.githubusercontent.com/ChefPaul/R/master/d607_Assignment6/books.xml"))
+xml_data
+```
+
+Being that Freakonomics has two authors, we can paste them into one author field.
+
+```{r}
+xml_data["author1"][2,] <- paste(xml_data["author1"][2,], " & ", xml_data["author2"][2,])
+xml_data["author1"]
+```
+
+Next, let's create a data frame with the updated authors column.
+
+```{r}
+library(DT)
+xml_df <- data.frame(xml_data)
+names(xml_df) <- c("Title", "Author(s)", "Genre", "Pages", "Year", "Publisher", "Price", "URL")
+xml_df <- subset(xml_df, select = -c(9))
+datatable(xml_df, rownames = FALSE)
+```
+
+## JSON
+We'll open up our "books.json" file and prep the results for a data frame.
+
+```{r}
+library(jsonlite)
+library(data.table)
+json_url <- "https://raw.githubusercontent.com/ChefPaul/R/master/d607_Assignment6/books.json"
+json_data <- getURLContent(json_url)
+json_data <- fromJSON(json_data)
+json_data <- as.data.frame(json_data)
+json_data
+```
+
+Similarly to the XML file, this JSON file also contains two authors for the book, Freakonmics.
+
+```{r}
+author1 <- as.character(json_data["author1"][2,])
+author2 <- as.character(json_data["author2"][2,])
+author3 <- paste(author1, " & ", author2)
+author3
+json_data$author1 <- as.character(json_data$author1)
+json_data$author1[2] <- author3
+json_data$author1
+json_data
+```
+
+Now, we'll create a data frame from the JSON file with updated authors.
+
+```{r}
+library(DT)
+json_df <- data.frame(json_data)
+json_df <- subset(json_df, select = -c(3))
+names(json_df) <- c("Title", "Author(s)", "Genre", "Pages", "Year", "Publisher", "Price", "URL")
+datatable(json_df, rownames = FALSE)
+```
+
+## HTML Table
+For this html table, we'll use the library "htmltab" and read the data.
+```{r}
+library(XML)
+library(RCurl)
+html_data <- as.data.frame(readHTMLTable(getURL("https://raw.githubusercontent.com/ChefPaul/R/master/d607_Assignment6/books.html")))
+names(html_data) <- c("Title", "Author1", "Author2", "Genre", "Pages", "Year", "Publisher", "Price", "URL")
+html_data
+```
+
+Again, we'll use the paste function to combine the names of the two authors of Freakonomics into one value.
+
+```{r}
+author1 <- as.character(html_data["Author1"][2,])
+author2 <- as.character(html_data["Author2"][2,])
+author3 <- paste(author1, " & ", author2)
+author3
+html_data$Author1 <- as.character(html_data$Author1)
+html_data$Author1[2] <- author3
+html_data$Author1
+html_data
+```
+
+Same approach here as we'll drop the "Author2" column which is the third index. 
+
+```{r}
+library(DT)
+html_df <- data.frame(html_data)
+html_df <- subset(html_df, select = -c(3))
+names(html_df) <- c("Title", "Author(s)", "Genre", "Pages", "Year", "Publisher", "Price", "URL")
+datatable(html_df, rownames = FALSE)
+```
+
+## Final Conclusions
+Though the structure of each individual raw file varies, there were similar practices applied to the cleaning of the data to prep it for final data frames which ultimately are the same. An interesting package to install is "DT". You're able to present the table in an interactive environment, specifically with the search bar up top and other useful options.
