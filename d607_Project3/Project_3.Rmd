@@ -1,0 +1,237 @@
+---
+title: 'Recommended Skills for Aspiring Data Scientists'
+output:
+  html_document:
+    highlight: pygments
+    theme: cerulean
+  pdf_document: default
+---
+### By William Outcault, Paul Perez, Aaron Zalki and John Suh
+
+# Libraries
+
+```{r message=FALSE}
+require(dplyr)
+require(tidyr)
+require(ggplot2)
+require(stringr)
+```
+
+# Scraped Data
+
+```{r}
+df <- read.csv("https://raw.githubusercontent.com/wco1216/datascientistskills/master/blended_view.csv", TRUE, ",")
+```
+
+# Counting and Filtering the Desired Skills
+
+The skills were counted for each position, data scientist, data analyst and data engineer. Vauge skills were removed that we felt didn't provide much incite to this research.
+
+```{r}
+dsskills <- df %>%
+  filter(df$query == "Data Science") %>%
+  count(skills) %>%
+  filter(n > 5 
+         & skills != "Data Science" 
+         & skills != "Data Analysis" 
+         & skills != "Data Engineering" )
+daskills <- df %>%
+  filter(df$query == "Data Analyst") %>%
+  count(skills) %>%
+  filter(n > 2 
+         & skills != "Data Science" 
+         & skills != "Data Analysis" 
+         & skills != "Data Engineering" )
+deskills <- df %>%
+  filter(df$query == "Data Engineer") %>%
+  count(skills) %>%
+  filter(n > 8 
+         & skills != "Data Science" 
+         & skills != "Data Analysis" 
+         & skills != "Data Engineering" )
+```
+
+--------------------------------------------------------------------------------
+
+\clearpage
+
+# Skills for Data Scientists, Data Analysts and Data Engineers
+
+## Data Scientist
+
+```{r}
+ggplot(dsskills, aes(x=reorder(skills, n),
+                  y=n, label="count")) +
+  geom_bar(stat='identity', width=.5, fill = "lightblue", color = "darkblue")  +
+  scale_fill_manual(name="Data Scientist Skills") + 
+  labs(title= "Desired Skills for a Data Scientist") + 
+  coord_flip()
+```
+
+--------------------------------------------------------------------------------
+
+\clearpage
+
+## Data Analyst
+
+```{r}
+ggplot(daskills, aes(x=reorder(skills, n),
+                  y=n, label="count")) +
+  geom_bar(stat='identity', width=.5, fill = "lightblue", color = "darkblue")  +
+  scale_fill_manual(name="Data Analyst Skills") + 
+  labs(title= "Desired Skills for a Data Analyst") + 
+  coord_flip()
+```
+
+--------------------------------------------------------------------------------
+
+\clearpage
+
+## Data Engineering
+
+```{r}
+ggplot(deskills, aes(x=reorder(skills, n),
+                  y=n, label="count")) +
+  geom_bar(stat='identity', width=.5, fill = "lightblue", color = "darkblue")  +
+  scale_fill_manual(name="Data Engineer Skills") + 
+  labs(title= "Desired Skills for a Data Engineer") + 
+  coord_flip()
+```
+
+--------------------------------------------------------------------------------
+
+\clearpage
+
+# Counting the Salary Range for Each Job Position
+
+For each job position the estimated salary posted on website was recorded and counted. Some minor cleaning was required in order to have accurate and consistant counts.
+
+```{r}
+df$wage <- str_replace_all(df$wage, ".*\\$", "")
+df$wage <- str_replace_all(df$wage, "[:alpha:]", "")
+df$wage <- str_replace_all(df$wage, "\\.[:digit:]{1,3}", "")
+
+dsskills <- df %>%
+  filter(query == "Data Science") %>%
+  count(wage) %>%
+  filter(wage != "null" & wage != " " & wage != "")
+daskills <- df %>%
+  filter(query == "Data Analyst") %>%
+  count(wage) %>%
+  filter(wage != "null" & wage != " " & wage != "")
+deskills <- df %>%
+  filter(query == "Data Engineer") %>%
+  count(wage) %>%
+  filter(wage != "null" & wage != " " & wage != "")
+
+dsskills$salary <- as.numeric(dsskills$wage)
+
+daskills$salary <- as.numeric(daskills$wage)
+
+deskills$salary <- as.numeric(deskills$wage)
+```
+
+--------------------------------------------------------------------------------
+
+\clearpage
+
+# Salary Ranges for Data Scientists, Data Analysts and Data Engineers
+
+## Data Scientist
+
+```{r}
+ggplot(dsskills, aes(x=salary))+
+  geom_density(color="darkblue", fill="lightblue")+
+  xlim(0, 350) + 
+  geom_vline(aes(xintercept=mean(salary)),
+            color="blue", linetype="dashed", size=1)+
+  labs(title= "Data Scientist Salaries")
+```
+
+--------------------------------------------------------------------------------
+
+\clearpage
+
+## Data Analyst
+
+```{r}
+ggplot(daskills, aes(x=salary))+
+  geom_density(color="darkblue", fill="lightblue")+
+  xlim(0, 200) + 
+  geom_vline(aes(xintercept=mean(salary)),
+            color="blue", linetype="dashed", size=1)+
+  labs(title= "Data Analyst Salaries")
+```
+
+--------------------------------------------------------------------------------
+
+\clearpage
+
+## Data Engineer
+
+```{r}
+ggplot(deskills, aes(x=salary))+
+  geom_density(color="darkblue", fill="lightblue")+
+  xlim(0, 350) + 
+  geom_vline(aes(xintercept=mean(salary)),
+            color="blue", linetype="dashed", size=1)+
+  labs(title= "Data Engineer Salaries")
+```
+
+--------------------------------------------------------------------------------
+
+\clearpage
+
+# Counting and Filtering the Location of the Job Positions
+
+The location of each post was another topic of interest. We counted the total amount of job postings from each city to better understand which cities are hiring for data scientists, engineers and analysts.
+
+```{r}
+df$location <- str_extract(df$location, ".+, [:upper:][:upper:]")
+
+df <- df %>%
+  select(location) %>%
+  count(location) %>%
+  filter(location != "NA" & n > 10)
+```
+
+# Job Positions by City
+
+```{r}
+ggplot(df, aes(x=reorder(location, n),
+                  y=n, label="count")) +
+  geom_bar(stat='identity', width=.5, fill = "lightblue", color = "darkblue")  +
+  scale_fill_manual(name="Cities Hiring Data Scientists") + 
+  labs(title= "Listed Job Openings") + 
+  coord_flip()
+```
+
+--------------------------------------------------------------------------------
+
+\clearpage
+
+# Conclusion
+
+## R, Python or SQL?
+
+Looking at Python, R and SQL we see Python and SQL are neck and neck. For data scientists and data engineers Python experience was listed deveral more times than SQL. However for data analyst positions we see SQL listed the most. Python is the most popular programming language for data scientists, for data analysts SQL is most popular and for data engineers it is Java. 
+
+## Skills
+
+`Data Scientist: Top 5 skills` employers desire from their data scientist is proficency in `Machine Learning`, `Python`, `Data Mining`, `Deep Learning`, and `SQL`. 
+
+`Data Analyst: Top 5 skills` employers desire from their data analysts is proficency in `SQL`, `Tableau`, `Python`, `Dashboard`, and `Data Visualization`.
+
+`Data Engineer: Top 5 skills` employers desire from their data scientist is proficency in `Java`, `Python`, `Big Data`, `SPARK`, and `Hadoop`. 
+
+
+## Salaries
+
+The salaries range from `50k - 200k` for any given job position. Some exceed 200k and some are below 50k however for a student's sake this is the range we will be focusing on. We see the mean salaries increase as we go from `data analyst < data scientist < data engineer`. 
+
+## Hiring Cities
+
+The top 5 cities with the most job postings were San Fancisco, Boston, New York City, Los Angeles, and Austin. Each one of these cities included at least 45 job postings and are great places to start a career in the tech industry.
+
+
+
