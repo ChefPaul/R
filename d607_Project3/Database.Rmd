@@ -1,6 +1,6 @@
 ---
-title: "Data Science Skills - Project 3"
-author: "Paul Perez"
+title: "Database Management - Project 3"
+author: "Paul Perez, William Outcault, Aaron Zalki, John Suh"
 date: "10/20/2019"
 output: html_document
 ---
@@ -9,43 +9,25 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Database Packages
+## Database Package
 ```{r}
-install.packages(c("sqldf", "rvest", "dplyr", "tidyr", "stringr"))
+#install.packages("sqldf")
 ```
 ```{r}
 library(sqldf)
-library(rvest)
-library(dplyr)
-library(tidyr)
-library(stringr)
 ```
 
-## Create Database
+### Create Database
+We'll create a SQLite database for the purpose of this project. 
 ```{r}
-library(sqldf)
 db <- dbConnect(SQLite(), dbname = "project_3.sqlite")
 ```
 
-## Create Tables
+### Create Tables
 Create Cyber Coders Table
-Drop Tables if already existing
 ```{r}
 dbSendQuery(conn = db,
-             "DROP TABLE cybercoders")
-```
-```{r}
-dbSendQuery(conn = db,
-             "DROP TABLE careerbuilder")
-```
-```{r}
-dbSendQuery(conn = db,
-             "DROP VIEW job_postings")
-```
-Create Cyber Coder's Table
-```{r}
-dbSendQuery(conn = db,
-             "CREATE TABLE cybercoders
+             "CREATE TABLE IF NOT EXISTS cybercoders
              (titles TEXT,
              date DATE,
              location TEXT,
@@ -53,11 +35,16 @@ dbSendQuery(conn = db,
              skills TEXT,
              query TEXT)")
 ```
+```{r}
+# Uncomment should you have to drop this table
+#dbSendQuery(conn = db,
+#             "DROP TABLE cybercoders")
+```
 
 Create Career Builder Table
 ```{r}
 dbSendQuery(conn = db,
-             "CREATE TABLE careerbuilder
+             "CREATE TABLE IF NOT EXISTS careerbuilder
              (ws_order TEXT,
              ws_st_url TEXT,
              link TEXT,
@@ -70,173 +57,30 @@ dbSendQuery(conn = db,
              skills TEXT,
              query TEXT)")
 ```
-
-## Get CyberCoder's Postings
-
-#### Functions
-Creating functions for pulling each element of the web scrape using SelectorGadget and Rvest
 ```{r}
-get_location <- function(x){
-     location <- x %>% read_html() %>% html_nodes(".location") %>% html_text()
-     location <- sub("\\s+$", "", location)
-     return(location)
-}
-
-get_skills <- function(x) {
-     skills <- x %>% read_html() %>% html_nodes(".skill-list") %>% html_text()
-     skills <- str_extract_all (skills,"\\b[A-z].+\\b")
-     return(skills)
-}     
-get_titles <- function(x) {
-     titles <- x %>% read_html() %>% html_nodes(".job-title") %>% html_text()
-     titles <- gsub("^\\s+|\\s+$", "", titles)
-     return(titles)
-}     
-get_wage <- function(x) {
-     wage <- x %>% read_html() %>% html_nodes(".wage") %>% html_text()
-     return(wage)
-}     
-get_date <- function(x) {
-     date <- x %>% read_html() %>% html_nodes(".posted") %>% html_text()
-     date <- str_replace_all(date, "Posted", "")
-     return(date)
-}
-
-create_df <- function(x, y) {
-  location <- get_location(x)
-  skills <- get_skills(x)
-  titles <- get_titles(x)
-  wage <- get_wage(x)
-  date <- get_date(x)
-  df <- data.frame(cbind(titles, date, location, wage, skills))
-  df <- unnest(df, titles)
-  df <- unnest(df, date)
-  df <- unnest(df, location)
-  df <- unnest(df, wage)
-  df <- unnest(df, skills)
-  df$query <- y
-  levels(df$wage)[levels(df$wage) == "Compensation Unspecified"]<- "NULL"
-  return(df)
-}
-```
-
-```{r}
-ds <- "Data Science"
-ds_urls <- list()
-
-for (i in 1:4) {
-    ds_urls[i] <- paste("https://www.cybercoders.com/search/?page=", i, "&searchterms=Data%20Scientist&searchlocation=&newsearch=true&originalsearch=true&sorttype=", sep = "")
-}
-
-ds_df1 <- create_df(ds_urls[[1]], ds)
-dbWriteTable(conn = db, name="cybercoders", value=ds_df1, row.names = FALSE, header = TRUE, append = TRUE)
-ds_df2 <- create_df(ds_urls[[2]], ds)
-dbWriteTable(conn = db, name="cybercoders", value=ds_df2, row.names = FALSE, header = TRUE, append = TRUE)
-ds_df3 <- create_df(ds_urls[[3]], ds)
-dbWriteTable(conn = db, name="cybercoders", value=ds_df3, row.names = FALSE, header = TRUE, append = TRUE)
-ds_df4 <- create_df(ds_urls[[4]], ds)
-dbWriteTable(conn = db, name="cybercoders", value=ds_df4, row.names = FALSE, header = TRUE, append = TRUE)
-```
-
-```{r}
-de <- "Data Engineer"
-de_urls <- list()
-
-for (i in 1:10) {
-  de_urls[i] <- paste("https://www.cybercoders.com/search/?page=", i, "&searchterms=Data%20Engineer&searchlocation=&newsearch=true&originalsearch=true&sorttype=", sep = "")
-}
-
-de_df1 <- create_df(de_urls[[1]], de)
-de_df2 <- create_df(de_urls[[2]], de)
-de_df3 <- create_df(de_urls[[3]], de)
-de_df4 <- create_df(de_urls[[4]], de)
-de_df5 <- create_df(de_urls[[5]], de)
-de_df6 <- create_df(de_urls[[6]], de)
-de_df7 <- create_df(de_urls[[7]], de)
-de_df8 <- create_df(de_urls[[8]], de)
-de_df9 <- create_df(de_urls[[9]], de)
-de_df10 <- create_df(de_urls[[10]], de)
-
-#de_df <- rbind(de_df1, de_df2, de_df3, de_df4, de_df5, de_df6, de_df7, de_df8, de_df9, de_df10)
-#View(de_df)
-```
-
-```{r}
-dbWriteTable(conn = db, name="cybercoders", value=de_df1, row.names = FALSE, header = TRUE, append = TRUE)
-dbWriteTable(conn = db, name="cybercoders", value=de_df2, row.names = FALSE, header = TRUE, append = TRUE)
-dbWriteTable(conn = db, name="cybercoders", value=de_df3, row.names = FALSE, header = TRUE, append = TRUE)
-dbWriteTable(conn = db, name="cybercoders", value=de_df4, row.names = FALSE, header = TRUE, append = TRUE)
-dbWriteTable(conn = db, name="cybercoders", value=de_df5, row.names = FALSE, header = TRUE, append = TRUE)
-dbWriteTable(conn = db, name="cybercoders", value=de_df6, row.names = FALSE, header = TRUE, append = TRUE)
-dbWriteTable(conn = db, name="cybercoders", value=de_df7, row.names = FALSE, header = TRUE, append = TRUE)
-dbWriteTable(conn = db, name="cybercoders", value=de_df8, row.names = FALSE, header = TRUE, append = TRUE)
-dbWriteTable(conn = db, name="cybercoders", value=de_df9, row.names = FALSE, header = TRUE, append = TRUE)
-dbWriteTable(conn = db, name="cybercoders", value=de_df10, row.names = FALSE, header = TRUE, append = TRUE)
+# Uncomment should you have to drop this table
+#dbSendQuery(conn = db,
+#             "DROP TABLE careerbuilder")
 ```
 
 
+
+### Create Blended View
+We'll create a blended view for analysis in which we're lining up the Job Title, Location, Salary, and Skill from each of the 'cybercoders' and 'careerbuilder' tables.
 ```{r}
-da <- "Data Analyst"
-da_urls <- list()
-
-for (i in 1:3) {
-  da_urls[i] <- paste("https://www.cybercoders.com/search/?page=", i, "&searchterms=Data%20Analyst&searchlocation=&newsearch=true&originalsearch=true&sorttype=", sep = "")
-}
-
-da_df1 <- create_df(da_urls[[1]], da)
-da_df2 <- create_df(da_urls[[2]], da)
-da_df3 <- create_df(da_urls[[3]], da)
-
-
-#da_df <- rbind(da_df1, da_df2, da_df3)
-#View(da_df)
-```
-
-```{r}
-dbWriteTable(conn = db, name="cybercoders", value=da_df1, row.names = FALSE, header = TRUE, append = TRUE)
-dbWriteTable(conn = db, name="cybercoders", value=da_df2, row.names = FALSE, header = TRUE, append = TRUE)
-dbWriteTable(conn = db, name="cybercoders", value=da_df3, row.names = FALSE, header = TRUE, append = TRUE)
-```
-
-
-## Get Career Builder's Postings
-```{r}
-cb_ds <- data.frame(read.csv(file = "datascientist.csv"))
-names(cb_ds) <- c("ws_order", "ws_st_url", "link", "link_href", "load_more", "load_more_href", "name", "location", "salary", "skills")
-cb_ds$query <- "Data Science"
-dbWriteTable(conn = db, name="careerbuilder", value=cb_ds, row.names = FALSE, header = TRUE, append = TRUE)
-
-cb_de <- data.frame(read.csv(file = "dataengineer.csv"))
-names(cb_de) <- c("ws_order", "ws_st_url", "link", "link_href", "load_more", "load_more_href", "name", "location", "salary", "skills")
-cb_de$query <- "Data Engineer"
-dbWriteTable(conn = db, name="careerbuilder", value=cb_de, row.names = FALSE, header = TRUE, append = TRUE)
-
-cb_da <- data.frame(read.csv(file = "dataanalyst.csv"))
-names(cb_da) <- c("ws_order", "ws_st_url", "link", "link_href", "salary", "location", "skills", "load_more", "load_more_href", "name")
-cb_da <- cb_da[c("ws_order", "ws_st_url", "link", "link_href", "load_more", "load_more_href", "name", "location", "salary", "skills")]
-cb_da$query <- "Data Analyst"
-dbWriteTable(conn = db, name="careerbuilder", value=cb_da, row.names = FALSE, header = TRUE, append = TRUE)
-```
-
-
-```{r, eval= FALSE}
 dbSendQuery(conn = db,
-             "CREATE VIEW job_postings AS
+             "CREATE VIEW IF NOT EXISTS job_postings AS
              SELECT 'Cyber Coders' AS website, query, titles, location, wage, skills FROM cybercoders
              UNION
              SELECT 'Career Builder' AS website, query, name, location, salary, skills FROM careerbuilder")
 ```
-
-
 ```{r}
-blended_view <- data.frame(dbReadTable(db, "job_postings"))
-cyber_coders <- data.frame(dbReadTable(db, "cybercoders"))
-career_builder <- data.frame(dbReadTable(db, "careerbuilder"))
-View(blended_view)
-View(cyber_coders)
-View(career_builder)
+# Uncomment should you have to drop this view
+#dbSendQuery(conn = db,
+#             "DROP VIEW job_postings")
 ```
 
+### Close Connection
 ```{r}
 dbDisconnect(db)
 ```
