@@ -1,0 +1,109 @@
+---
+title: "DATA 606 Data Project Proposal"
+author: "Paul Perez"
+output: html_document
+---
+
+### Data Preparation
+
+```{r setup, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
+# load data
+#install.packages(c("psych", "ggplot2", "DT"))
+library(psych)
+library(ggplot2)
+library(DT)
+df <- read.csv("https://raw.githubusercontent.com/ChefPaul/R/master/d606_Project/exam_results.csv", TRUE, ",")
+```
+
+
+### Research question 
+
+**You should phrase your research question in a way that matches up with the scope of inference your dataset allows for.**
+Does a parents level of education contribute to their child's test outcome?
+
+
+### Cases 
+
+**What are the cases, and how many are there?**
+Each case represents a student from a random selection/generation 
+
+
+
+### Data collection 
+
+**Describe the method of data collection.**
+The data was found on Kaggle with an additional link for generating a new sample file. These are fictional, randomly generated records for educational purposes only.
+
+
+### Type of study 
+
+**What type of study is this (observational/experiment)?**
+This is an observational study.
+
+
+### Data Source 
+
+**If you collected the data, state self-collected. If not, provide a citation/link.**
+SPScientist. (2018), [Students Performance in Exams](https://www.kaggle.com/spscientist/students-performance-in-exams/metadata)
+Kimmons, Royce. (2012), [Understanding digital participation divides](http://roycekimmons.com/tools/generated_data/exams)
+
+
+
+### Dependent Variable
+
+**What is the response variable? Is it quantitative or qualitative?**
+The dependent variables are the 3 different test scores (math, reading, writing). These are quantitative variables. 
+
+
+
+### Independent Variable
+
+**You should have two independent variables, one quantitative and one qualitative.**
+There are a few independent variables, but some more important one's to look at are gender, parental level of education, and test preparation course. These are qualitative variables.
+
+
+### Relevant summary statistics 
+
+**Provide summary statistics for each the variables. Also include appropriate visualizations related to your research question (e.g. scatter plot, boxplots, etc). This step requires the use of R, hence a code chunk is provided below. Insert more code chunks as needed.**
+### Descriptive Statistics
+```{r}
+describe(df$math.score)
+```
+```{r}
+describe(df$reading.score)
+```
+```{r}
+describe(df$writing.score)
+```
+### Counts for each Level of Education
+```{r}
+table(df$parental.level.of.education)
+```
+
+```{r}
+datatable(describeBy(df$math.score, group = df$parental.level.of.education, mat = TRUE), rownames = FALSE)
+```
+
+```{r}
+datatable(describeBy(df$reading.score, group = df$parental.level.of.education, mat = TRUE), rownames = FALSE)
+```
+
+```{r}
+datatable(describeBy(df$writing.score, group = df$parental.level.of.education, mat = TRUE), rownames = FALSE)
+```
+## Histograms
+### Math Scores
+```{r}
+ggplot(df, aes(x=math.score)) + geom_histogram()
+```
+### Reading Scores
+```{r}
+ggplot(df, aes(x=reading.score)) + geom_histogram()
+```
+### Writing Scores
+```{r}
+ggplot(df, aes(x=writing.score)) + geom_histogram()
+```
+
+## Next Steps
+Based on this intial summary of the data, it looks like there are more cuts of data to look at for a more in depth exploratory anlaysis. It will be interesting to look at other attributes such as gender, race, lunch status and test preparation to see if their are any trends. 
