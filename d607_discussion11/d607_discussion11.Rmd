@@ -1,0 +1,38 @@
+---
+title: "ebay's Recommender System - Data 607 Discussion (Week 11)"
+author: "Paul Perez"
+date: "11/10/2019"
+output:
+  pdf_document: default
+  always_allow_html: yes
+  HTML: default
+  html_document:
+    df_print: paged
+    highlight: pygments
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+eBay Inc. is an e-commerce webiste that facilitates consumer-to-consumer and business-to-consumer for both new and used items. I have selected eBay because of its niche buying audience. User's resort to eBay when they're looking for a very specific item that may no longer be available online or at in-store retailers because these items may be rare and outdated. Additionally, there may be items that were sold through exclusive orders and now are sold on the secondary market, where eBay is one of the platforms. 
+
+# Scenario Design
+#### 1. Who are your target users?
+These target user's are buyer's looking for a very specific item. They're entering eBay knowing what they want to purchase. 
+
+#### 2. What are their key goals?
+These user's want to make a purchase, they've searched a specific item and have been presented with the top related items for that search. 
+
+#### 3. How can you help them accomplish those goals?
+eBay's returns the top related items with filter's and sorting options to aid the user as well as a side panel of related items available for browsing.
+
+# Reverse Engineer
+Aside from your typical login/account top buttons when first entering the site, the user is hit with a search bar that feature's a category drop down which is a bit of a standard when it comes to online retail and e-commerce sites. eBay's initial new's and offers are rotating right below that. If the user has not entered the site before, there are 'recently viewed' or category specific sections either. My example search was a New York Yankees All-Star Game Jersey, which led to me viewing a few different Yankees Player's jerseys. When revisiting the site, I was able to see those 'recently viewed' items as well as a section of 'New York Yankees All-Star Game MLB Fan Apparel & Souvenirs' section with hats, jerseys, and memorabilia. Clicking the 'See All' button next to the section, brought me to a results page that allowed me to shop by product or look at best sellig items related, along with the actual listings for related items. 
+
+```{r pressure, echo=FALSE, fig.cap="A caption", out.width = '100%'}
+knitr::include_graphics("eBay_NYY_Recco.png")
+```
+
+# Recommendations
+Understanding this recommendation was fairly spot on, the keyword 'jersey' should have been prioritized more than just the team or subject 'New York Yankees'. This should be a hybrid approach in which there is a search based method and item-to-item collaborative filtering method which allows the algorithm to identify the subject and type of item being search to really ensure related items are matching, not only the subject in this instance. 
